@@ -2,10 +2,13 @@
 Mozzi-resources
 .vscode
 *.out
+*.ogg
+*.mp3
 sonar-project.properties
 *.bak
 *.gch
 *#*
+images
 Makefile*
 tags
 user_guide.md

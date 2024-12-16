@@ -40,7 +40,7 @@ boolean note_is_on = true;
 
 void setup(){
   //Serial.begin(9600); // for Teensy 3.1, beware printout can cause glitches
-  Serial.begin(115200);
+  //Serial.begin(115200);
   randSeed(); // fresh random
   noteDelay.set(2000); // 2 second countdown
   startMozzi();
@@ -59,7 +59,7 @@ void updateControl(){
 
     // generate a random new adsr time parameter value in milliseconds
      unsigned int new_value = rand(300) +100;
-     Serial.println(new_value);
+     //Serial.println(new_value);
      // randomly choose one of the adsr parameters and set the new value
      switch (rand(4)){
        case 0:
@@ -81,7 +81,9 @@ void updateControl(){
      envelope.setTimes(attack,decay,sustain,release_ms);
      envelope.noteOn();
 
-     byte midi_note = rand(107)+20;
+      byte c_dur[]= {0, 2, 4, 5, 7, 9, 11, 12};
+
+     byte midi_note = c_dur[rand(8)] + 48; // C3 ...
      aOscil.setFreq((int)mtof(midi_note));
 
 /*

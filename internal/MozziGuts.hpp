@@ -47,6 +47,8 @@ template<byte BITS_IN, byte BITS_OUT, typename T> constexpr T smartShift(T value
 #  include "MozziGuts_impl_STM32.hpp"
 #elif IS_STM32DUINO()
 #  include "MozziGuts_impl_STM32duino.hpp"
+#elif IS_STM32CMSIS()
+#  include "MozziGuts_impl_STM32cmsis.hpp"
 #elif IS_ESP32()
 #  include "MozziGuts_impl_ESP32.hpp"
 #elif IS_ESP8266()
@@ -96,7 +98,8 @@ static void CACHED_FUNCTION_ATTR defaultAudioOutput() {
   adc_count = 0;
   startSecondADCReadOnCurrentChannel();  // the current channel is the AUDIO_INPUT pin
 #  endif
-  audioOutput(output_buffer.read());
+  AudioOutput output = output_buffer.read(); 
+  audioOutput(output);
 }
 #endif  // #if (AUDIO_INPUT_MODE == AUDIO_INPUT_LEGACY)
 ////// END Output buffering ///////
@@ -201,9 +204,9 @@ inline void advanceADCStep() {
 #else
 MOZZI_ASSERT_EQUAL(MOZZI_ANALOG_READ, MOZZI_ANALOG_READ_NONE)
 
-uint16_t mozziAnalogRead(uint8_t pin) {
-  return analogRead(pin);
-}
+// uint16_t mozziAnalogRead(uint8_t pin) {
+//   return analogRead(pin);
+// }
 
 #endif  // MOZZI_ANALOG_READ
 
@@ -301,7 +304,7 @@ unsigned long mozziMicros() { return MozziPrivate::mozziMicros(); };
 unsigned long audioTicks() { return MozziPrivate::audioTicks(); };
 void startMozzi(int control_rate_hz) { MozziPrivate::startMozzi(control_rate_hz); };
 void stopMozzi() { MozziPrivate::stopMozzi(); };
-template<byte RES> uint16_t mozziAnalogRead(uint8_t pin) { return MozziPrivate::smartShift<MOZZI__INTERNAL_ANALOG_READ_RESOLUTION, RES>(MozziPrivate::mozziAnalogRead(pin));};
+//template<byte RES> uint16_t mozziAnalogRead(uint8_t pin) { return MozziPrivate::smartShift<MOZZI__INTERNAL_ANALOG_READ_RESOLUTION, RES>(MozziPrivate::mozziAnalogRead(pin));};
 #if !MOZZI_IS(MOZZI_AUDIO_INPUT, MOZZI_AUDIO_INPUT_NONE)
 template<byte RES> uint16_t getAudioInput() { return MozziPrivate::smartShift<MOZZI__INTERNAL_ANALOG_READ_RESOLUTION, RES>(MozziPrivate::getAudioInput()); };
 #endif
@@ -314,7 +317,7 @@ void audioHook() { MozziPrivate::audioHook(); };
 
 // This is not strictly needed, but we want it to throw an error, if users have audioOutput() in their sketch without external output configured
 #if !MOZZI_IS(MOZZI_AUDIO_MODE, MOZZI_OUTPUT_EXTERNAL_TIMED, MOZZI_OUTPUT_EXTERNAL_CUSTOM)
-MOZZI_DEPRECATED("n/a", "Sketch has audioOutput() function, although external output is not configured.") void audioOutput(const AudioOutput) {};
+//MOZZI_DEPRECATED("n/a", "Sketch has audioOutput() function, although external output is not configured.") void audioOutput(const AudioOutput) {};
 #endif
 #if !MOZZI_IS(MOZZI_AUDIO_MODE, MOZZI_OUTPUT_EXTERNAL_CUSTOM)
 // TODO: This won't work without a rename:

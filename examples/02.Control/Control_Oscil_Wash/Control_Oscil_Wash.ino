@@ -23,7 +23,6 @@
    Mozzi is licensed under the GNU Lesser General Public Licence (LGPL) Version 2.1 or later.
 */
 
-#define MOZZI_CONTROL_RATE 128
 #include <Mozzi.h>
 #include <Oscil.h>
 #include <tables/cos8192_int8.h>
@@ -50,7 +49,7 @@ Oscil<COS8192_NUM_CELLS, MOZZI_CONTROL_RATE> kVol7(COS8192_DATA);
 Oscil<COS8192_NUM_CELLS, MOZZI_CONTROL_RATE> kVol8(COS8192_DATA);
 
 // audio volumes updated each control interrupt and reused in audio till next control
-char v1,v2,v3,v4,v5,v6,v7,v8;
+int8_t v1,v2,v3,v4,v5,v6,v7,v8;
 
 void setup(){
 
@@ -85,6 +84,7 @@ void loop(){
 
 
 void updateControl(){
+  v1=v2=v3=v4=v5=v6=v7=v8=127;
    v1 = kVol1.next()>>1; // going at a higher freq, this creates zipper noise, so reduce the gain
    v2 = kVol2.next();
    v3 = kVol3.next();
@@ -96,14 +96,14 @@ void updateControl(){
 }
 
 AudioOutput updateAudio(){
-  long asig = (long)
-    aCos1.next()*v1 +
-    aCos2.next()*v2 +
-    aCos3.next()*v3 +
-    aCos4.next()*v4 +
-    aCos5.next()*v5 +
-    aCos6.next()*v6 +
-    aCos7.next()*v7 +
-    aCos8.next()*v8;
+  int32_t asig  = 0;
+  asig += aCos8.next() * v8;
+  asig += aCos7.next() * v7;
+  asig += aCos6.next() * v6;
+  asig += aCos5.next() * v5;
+  asig += aCos4.next() * v4;
+  asig += aCos3.next() * v3;
+  asig += aCos2.next() * v2;
+  asig += aCos1.next() * v1;
   return MonoOutput::fromAlmostNBit(18, asig);
 }

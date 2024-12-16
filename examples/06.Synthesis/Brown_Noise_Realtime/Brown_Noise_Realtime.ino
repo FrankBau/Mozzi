@@ -33,7 +33,7 @@ Oscil <SIN2048_NUM_CELLS, MOZZI_AUDIO_RATE> aSin(SIN2048_DATA);
 void setup()
 {
   startMozzi(); // :)
-  aSin.setFreq(0.05f); // set the frequency
+  aSin.setFreq(10.0f); // set the frequency
 }
 
 
@@ -45,13 +45,14 @@ void updateControl()
 
 AudioOutput updateAudio()
 {
-  static int filtered;
+  static int16_t brown;
 
-  char whitenoise = rand((byte)255) - 128;
-  filtered = filtered - (filtered>>FILTER_SHIFT) + whitenoise;
+  int8_t whitenoise = rand((byte)255) - 128;
+  brown += whitenoise;
 
-  int asig = filtered>>3; // shift to 8 bit range (trial and error)
-  return MonoOutput::from16Bit((int)asig * aSin.next());
+  // changed alot
+  
+  return MonoOutput::from16Bit((int)brown*64);  //  * aSin.next()
 }
 
 

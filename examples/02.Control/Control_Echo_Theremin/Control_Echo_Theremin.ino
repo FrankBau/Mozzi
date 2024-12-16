@@ -33,6 +33,8 @@
 #include <tables/sin2048_int8.h> // sine table for oscillator
 #include <RollingAverage.h>
 #include <ControlDelay.h>
+#include <mozzi_rand.h>
+#include <mozzi_midi.h>
 
 #define INPUT_PIN 0 // analog control input
 
@@ -59,7 +61,17 @@ void setup(){
 
 
 void updateControl(){
-  int bumpy_input = mozziAnalogRead<10>(INPUT_PIN); // request reading at 10-bit resolution, i.e. 0-1023
+
+  byte c_dur[]= {0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24};
+  static byte midi_note;
+  static int i;
+  if(i==100) {
+     midi_note = c_dur[rand(sizeof(c_dur))] + 48; // C3 ...
+     i = 0;
+  }
+  i++;
+
+  int bumpy_input = mtof(midi_note); // mozziAnalogRead<10>(INPUT_PIN); // request reading at 10-bit resolution, i.e. 0-1023
   averaged = kAverage.next(bumpy_input);
   aSin0.setFreq(averaged);
   aSin1.setFreq(kDelay.next(averaged));

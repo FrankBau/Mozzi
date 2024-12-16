@@ -102,6 +102,8 @@
 #include "config_checks_samd21.h"
 #elif IS_STM32DUINO()
 #include "config_checks_stm32duino.h"
+#elif IS_STM32CMSIS()
+#include "config_checks_stm32cmsis.h"
 #elif IS_STM32MAPLE()
 #include "config_checks_stm32maple.h"
 #elif (IS_TEENSY3() || IS_TEENSY4())
