@@ -180,7 +180,7 @@ static void startAudio() {
 
     RCC->APB1ENR1 |= RCC_APB1ENR1_DAC1EN; // enable peripheral clock
     (void)RCC->APB1ENR1;                  // ensure that the last write command finished and the clock is on
-    DAC1->DHR12R1 = MOZZI_AUDIO_BIAS;     // 12 bit right adjusted chjannel 1, set to neutral (center) voltage
+    DAC1->DHR12R1 = MOZZI_AUDIO_BIAS;     // 12 bit right adjusted channel 1, set to neutral (center) voltage
     DAC1->CR = 7 << DAC_CR_TSEL1_Pos;     // software trigger
     DAC1->CR &= ~DAC_CR_MAMP1;            // Disable noise/toggle wave generation (reset default)
     DAC1->CR &= ~DAC_CR_WAVE1;            // Disable wave generation (reset default)

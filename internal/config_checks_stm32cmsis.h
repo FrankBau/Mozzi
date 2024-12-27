@@ -74,8 +74,10 @@ analogReadResolution(MOZZI_ANALOG_READ_RESOLUTION);
 #  endif
 /** NOTE: All ports need to provide a default for this, for all audio modes _except_ for the external ones: */
 #  if !defined(MOZZI_AUDIO_BITS)
-#    define MOZZI_AUDIO_BITS 12
+#    define MOZZI_AUDIO_BITS 10
 #  endif
+#  define MOZZI_AUDIO_BIAS (100U + (1U<<(MOZZI_AUDIO_BITS-1)))
+
 /** NOTE: If only mono is supported in this output mode: */
 #  include "disable_stereo_on_github_workflow.h"   // This allows stereo sketches to compile (in mono) in automated testing builds.
 MOZZI_CHECK_SUPPORTED(MOZZI_AUDIO_CHANNELS, MOZZI_MONO)
