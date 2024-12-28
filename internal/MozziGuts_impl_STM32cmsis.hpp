@@ -146,17 +146,16 @@ inline void audioOutput(const AudioOutput f) {
   // e.g. analogWrite(MOZZI_AUDIO_CHANNEL_1_PIN, f.l()+MOZZI_AUDIO_BIAS);
   int32_t value = f.l(); 
   DAC1->DHR12R1 = value + MOZZI_AUDIO_BIAS;
-  DAC1->SWTRIGR = 1;
 #  if (MOZZI_AUDIO_CHANNELS > 1)
   // e.g. analogWrite(MOZZI_AUDIO_CHANNEL_2_PIN, f.r()+MOZZI_AUDIO_BIAS);
 #  endif
 }
 #endif
 
-extern "C" void TIM6_DACUNDER_IRQHandler(void)
+extern "C" void TIM7_IRQHandler(void)
 {
-  if(TIM6->SR & TIM_SR_UIF) {
-    TIM6->SR &= ~TIM_SR_UIF;  // clear the flag that caused the interrupt
+  if(TIM7->SR & TIM_SR_UIF) {
+    TIM7->SR &= ~TIM_SR_UIF;  // clear the flag that caused the interrupt
     defaultAudioOutput();
   }
 }
@@ -181,21 +180,19 @@ static void startAudio() {
     RCC->APB1ENR1 |= RCC_APB1ENR1_DAC1EN; // enable peripheral clock
     (void)RCC->APB1ENR1;                  // ensure that the last write command finished and the clock is on
     DAC1->DHR12R1 = MOZZI_AUDIO_BIAS;     // 12 bit right adjusted channel 1, set to neutral (center) voltage
-    DAC1->CR = 7 << DAC_CR_TSEL1_Pos;     // software trigger
     DAC1->CR &= ~DAC_CR_MAMP1;            // Disable noise/toggle wave generation (reset default)
     DAC1->CR &= ~DAC_CR_WAVE1;            // Disable wave generation (reset default)
-//    DAC1->CR |= DAC_CR_TEN1;            // trigger enable
     DAC1->CR |= DAC_CR_EN1;               // channel enable (after a tWAKEUP startup time).
 
-    // TIM6
-    RCC->APB1ENR1 |= RCC_APB1ENR1_TIM6EN; // enable peripheral clock
+    // TIM7
+    RCC->APB1ENR1 |= RCC_APB1ENR1_TIM7EN; // enable peripheral clock
     (void)RCC->APB1ENR1;                  // ensure that the last write command finished and the clock is on
-    TIM6->PSC = 0;                                               // no prescaling
-    TIM6->ARR = ((SystemCoreClock + (MOZZI_AUDIO_RATE / 2)) / MOZZI_AUDIO_RATE) - 1; // proper rounding 
-    TIM6->EGR = TIM_EGR_UG;                                      // generate update event
-    TIM6->DIER = TIM_DIER_UIE;                                   // enable update interrupt generation
-    NVIC_EnableIRQ(TIM6_DAC_IRQn);                               // enable TIM6 interrupt handling
-    TIM6->CR1 = TIM_CR1_CEN;                                     // enable the timer (start counting)
+    TIM7->PSC = 0;                        // no prescaling
+    TIM7->ARR = ((SystemCoreClock + (MOZZI_AUDIO_RATE / 2)) / MOZZI_AUDIO_RATE) - 1; // proper rounding 
+    TIM7->EGR = TIM_EGR_UG;               // generate update event
+    TIM7->DIER = TIM_DIER_UIE;            // enable update interrupt generation
+    NVIC_EnableIRQ(TIM7_IRQn);            // enable TIM7 interrupt handling
+    TIM7->CR1 = TIM_CR1_CEN;              // enable the timer (start counting)
 
 // #elif MOZZI_IS(MOZZI_AUDIO_MODE, MOZZI_OUTPUT_PWM)
 //   // [...]
@@ -206,7 +203,7 @@ static void startAudio() {
 
 void stopMozzi() {
   // Add here code to pause whatever mechanism moves audio samples to the output
-  TIM6->CR1 &= ~TIM_CR1_CEN;
+  TIM7->CR1 &= ~TIM_CR1_CEN;
 }
 ////// END audio output code //////
 
